@@ -4,6 +4,7 @@ import com.example.demo.ws.server.WebSocketHandler;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;
+import org.springframework.web.socket.TextMessage;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -35,8 +36,8 @@ public class EmptyClient extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
-        System.out.println("다른 서버로 부터 받은 메세지" + message);
-        webSocketHandler.sendMsg(message);
+        TextMessage textMessage = new TextMessage(message);
+        webSocketHandler.sendMsg(textMessage);
     }
 
     @Override

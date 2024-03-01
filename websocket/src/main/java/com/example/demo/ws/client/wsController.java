@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.IntStream;
 
 @RestController
 public class wsController {
@@ -17,18 +18,20 @@ public class wsController {
     public wsController(WebSocketHandler webSocketHandler) {
         this.webSocketHandler = webSocketHandler;
     }
-    private WebSocketClient webSocketClient;
+    private List<WebSocketClient> webSocketClients = new ArrayList<>();
 
-
-    @GetMapping("/ws/server")
-    public String connectSvr(){
-        this.webSocketClient = createWebSocketClient();
-        webSocketHandler.setWebSocketClient(this.webSocketClient);
-        return "연결 완료";
+    @GetMapping("/ws/status")
+    public String status(){
+        String str =  "Now Connect : " + webSocketClients.size() + System.lineSeparator();
+        for (WebSocketClient client: webSocketClients) {
+            str+="URL " + client.getURI() + System.lineSeparator();
+        }
+        return str;
     }
-    public WebSocketClient createWebSocketClient(){
+
+    public WebSocketClient createWebSocketClient(String serverIp){
         try {
-            String url = "ws://localhost:7002/ws/message";
+            String url = "ws://"+serverIp+"/ws/message";
             WebSocketClient client = new EmptyClient(new URI(url),webSocketHandler);
             client.connect();
             return client;
@@ -36,24 +39,23 @@ public class wsController {
             throw new RuntimeException(e);
         }
     }
+    @GetMapping("/ws/server")
+    public String connectSvr(String svr){
+        WebSocketClient webSocketClient = createWebSocketClient(svr);
+        webSocketClients.add(webSocketClient);
+        webSocketHandler.setWebSocketClient(webSocketClient);
+        return "연결 완료";
+    }
+
     @GetMapping("/ws/send/server")
     public String sendMsgToSvr(){
         CompletableFuture.runAsync(() -> {
-            webSocketClient.send("HI! FROM WS111");
+            for( WebSocketClient client : webSocketClients){
+                client.send("HI! FROM WS111");
+            }
         });
         return "성공";
     }
-    @GetMapping("/ws/send/client")
-    public String sendMsgToClient(){
-//        IntStream.range(1, 1000001)
-//                .forEach(n -> new Thread(() -> webSocketHandler.sendMsg(n+"")).start());
-
-        IntStream.range(1, 1000001)
-                .forEach(n ->  webSocketHandler.sendMsg(n+"") );
-
-        return "성공";
-    }
-
 
 
 }

@@ -1,4 +1,17 @@
-let wsServer = 'localhost:8080'
+
+let i =0;
+function wsServer(){
+    let svrList = [
+        'localhost:1000',
+        'localhost:2000'
+    ];
+    let size = svrList.length;
+    svr = svrList[i]
+    i++;
+    if( size == i) i=0;
+    return svr;
+}
+
 let carNumber=1;
 let sockets = {};
 let cars = {};
@@ -31,7 +44,7 @@ function stop(id){
     (cars[id]).broken = !0;
 }
 async function http_init(){
-    await fetch(`http://${wsServer}/init`)
+    await fetch(`http://${wsServer()}/init`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
@@ -41,7 +54,7 @@ async function http_init(){
 function Http_createCar(id){
 
     var intervalID = setInterval(function(){
-        fetch(`http://${wsServer}/isAccident`)
+        fetch(`http://${wsServer()}/isAccident`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
@@ -79,7 +92,7 @@ function Http_activeAccident(id){
     
     var now = new Date();
     var currentTimeInSeconds = now.getTime() / 1000;
-    fetch(`http://${wsServer}/accident?id=${id}&time=${currentTimeInSeconds}`)
+    fetch(`http://${wsServer()}/accident?id=${id}&time=${currentTimeInSeconds}`)
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
@@ -92,67 +105,35 @@ function ws_init(){
     })
 }
 
-function startPing(ws,id){
-    ws.pingIntervalId = setInterval(() => {
-        ws.send(JSON.stringify({
-            type: "ping",
-            sequence : sockets[id]['sequence']
-        }));
-    }, 3000);
-}
-function stopPing(ws,id){
-    clearInterval(ws.pingIntervalId);
-    delete sockets[id];
-}
 // 카 생성
 function Ws_createCar(id){
     
     sockets[id] = {
-        'ws' : new WebSocket(`ws://${wsServer}/ws/message`),
-        'sequence' : 0
+        'ws' : new WebSocket(`ws://${wsServer()}/ws/message`),
+        
     };
-               
-    
     sockets[id]['ws'].onmessage = function(event) {
         
         // 메시지를 JSON 객체로 파싱합니다.
-        var receivedData = JSON.parse(event.data);
-        if( receivedData.type == "pong" ){
-            if( sockets[id]['sequence'] != receivedData.sequence ){
-                //실패
-                (sockets[id]['ws']).send(JSON.stringify({
-                    type : "requestReSend",
-                    sequence : sockets[id]['sequence']
-                }));                
-            }
-        }
+        var now = new Date();
+        var currentTimeInSeconds = now.getTime() / 1000;
         
-        if( receivedData.type == "frame" ){
-            var now = new Date();
-            var currentTimeInSeconds = now.getTime() / 1000;
-            var frame = receivedData.frame
-            sockets[id]['sequence'] = receivedData.sequence 
-            var timeDifference = currentTimeInSeconds - frame.time;
-            // 시간 차이를 소수점 넷째자리까지 반올림합니다.
-            var roundedTimeDifference = timeDifference.toFixed(7);
-    
-            avgTime.push(roundedTimeDifference/1);
-            console.log(`My Car = ${id} 
+        var frame = JSON.parse(event.data);
+        var timeDifference = currentTimeInSeconds - frame.time;
+        // 시간 차이를 소수점 넷째자리까지 반올림합니다.
+        var roundedTimeDifference = timeDifference.toFixed(7);
+
+        avgTime.push(roundedTimeDifference/1);
+
+        console.log(`My Car = ${id} 
+From Server = ${sockets[id]['ws'].url}        
 Accident Car = ${frame.target} 
 Now - Accident Time diff = ${roundedTimeDifference}
 Avg Diff = ${(avgTime.reduce((x,y)=>x+y) / avgTime.length).toFixed(7)}
 `); 
-            stop(id);
-        }
-
+        stop(id);
     };
 
-    sockets[id]['ws'].onopen = function(event) {
-        startPing(sockets[id]['ws'],id);
-    };
-    sockets[id]['ws'].onclose = function(event) {
-        stopPing(sockets[id]['ws'],id);
-    };
     
 }
 // 카 종료
@@ -166,12 +147,8 @@ function Ws_activeAccident(id){
     var now = new Date();
     var currentTimeInSeconds = now.getTime() / 1000;
     var data = {
-      type: "frame",
-      sequence : sockets[id]['sequence'],
-      frame : {
         target: id,
         time: currentTimeInSeconds
-      }
     };
     // JSON 형태의 데이터를 문자열로 변환하여 보냅니다.
     (sockets[id]['ws']).send(JSON.stringify(data));
