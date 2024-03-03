@@ -1,4 +1,4 @@
-package com.example.demo.car;
+package com.example.demo.http;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,13 +12,13 @@ public class carController {
 
     String carId = null;
     String time = null;
-    @GetMapping("/init")
+    @GetMapping("/http/init")
     public String init(){
         this.carId = null ;
         this.time = null;
         return "OK";
     }
-    @GetMapping("/accident")
+    @GetMapping("/http/accident")
     public String accident(@RequestParam("id") String id,
                            @RequestParam("time") String time
                            ){
@@ -26,7 +26,7 @@ public class carController {
         this.time = time;
         return "OK";
     }
-    @GetMapping("/isAccident")
+    @GetMapping("/http/isAccident")
     public Map<String,Object> isAccident(){
 
         Map<String,Object> result = new HashMap<>();

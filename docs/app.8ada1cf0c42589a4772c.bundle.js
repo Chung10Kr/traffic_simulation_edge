@@ -44,7 +44,7 @@ function stop(id){
     (cars[id]).broken = !0;
 }
 async function http_init(){
-    await fetch(`http://${wsServer()}/init`)
+    await fetch(`http://${wsServer()}/http/init`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
@@ -54,7 +54,7 @@ async function http_init(){
 function Http_createCar(id){
 
     var intervalID = setInterval(function(){
-        fetch(`http://${wsServer()}/isAccident`)
+        fetch(`http://${wsServer()}/http/isAccident`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
@@ -92,7 +92,7 @@ function Http_activeAccident(id){
     
     var now = new Date();
     var currentTimeInSeconds = now.getTime() / 1000;
-    fetch(`http://${wsServer()}/accident?id=${id}&time=${currentTimeInSeconds}`)
+    fetch(`http://${wsServer()}/http/accident?id=${id}&time=${currentTimeInSeconds}`)
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
