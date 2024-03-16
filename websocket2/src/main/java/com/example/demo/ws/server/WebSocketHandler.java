@@ -54,9 +54,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 }
             });
         }
-        System.out.println(message.getPayload());
-
-        System.out.println(message.getPayload());
+        producer(message.getPayload());
         CLIENTS.entrySet().forEach( arg->{
             if(!arg.getKey().equals(id)){
                 sendMessageToClient(arg.getValue(),message);
@@ -80,7 +78,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         return "localhost:9092";
     }
     public String getTopic(){
-        boolean isOne = true;
+        boolean isOne = false;
         return isOne ? "edgeCar11" : "edgeCar22";
     }
     boolean start = true;

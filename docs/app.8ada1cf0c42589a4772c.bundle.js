@@ -2,6 +2,7 @@
 let i =0;
 function wsServer(){
     let svrList = [
+        //'localhost:8080',
         'localhost:1000',
         'localhost:2000'
     ];
@@ -24,6 +25,8 @@ function sleep(ms) {
   }
 
 function allInit(){
+    maxDiff = 0;
+    avgTime = [];
     ws_init();
     //http_init();
 }
@@ -105,6 +108,7 @@ function ws_init(){
     })
 }
 
+let maxDiff = 0;
 // 카 생성
 function Ws_createCar(id){
     
@@ -125,10 +129,13 @@ function Ws_createCar(id){
 
         avgTime.push(roundedTimeDifference/1);
 
+        maxDiff = ( maxDiff < roundedTimeDifference ) ? roundedTimeDifference : maxDiff
+
         console.log(`My Car = ${id} 
 From Server = ${sockets[id]['ws'].url}        
 Accident Car = ${frame.target} 
 Now - Accident Time diff = ${roundedTimeDifference}
+Max Diff = ${maxDiff}
 Avg Diff = ${(avgTime.reduce((x,y)=>x+y) / avgTime.length).toFixed(7)}
 `); 
         stop(id);

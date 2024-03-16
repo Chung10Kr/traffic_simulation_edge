@@ -31,7 +31,9 @@ public class wsController {
     @GetMapping("/kafka/start")
     public String startConsumer(){
 
-        String topic = (webSocketHandler.getTopic()).equals("edgeCar11") ? "edgeCar22" : "edgeCar11";
+//        Thread thread = new Thread(() -> {
+
+            String topic = (webSocketHandler.getTopic()).equals("edgeCar11") ? "edgeCar22" : "edgeCar11";
             Properties configs = new Properties();
             configs.put("bootstrap.servers", webSocketHandler.getIP());
             configs.put("session.timeout.ms", "10000");
@@ -55,6 +57,9 @@ public class wsController {
                     }
                 }
             }
+//        });
+
+//        thread.start(); // 스레드 시작
 
         //return "시작";
     };

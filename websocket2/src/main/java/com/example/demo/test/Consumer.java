@@ -1,30 +1,19 @@
-import com.example.demo.kafka.KafkaProducer;
+package com.example.demo.test;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.Properties;
+public class Consumer {
 
-@SpringBootTest
-public class KafKaTest {
+    public static void main(String[] args) {
 
-    @Autowired
-    KafkaProducer producer;
-
-    @Test
-    void ProducerTest(){
-        producer.sendMessage("TEST1");
-    }
-    @Test
-    void ConsumerTest(){
         Properties configs = new Properties();
         configs.put("bootstrap.servers", "localhost:9092"); // kafka server host 및 port
         configs.put("session.timeout.ms", "10000"); // session 설정
-        configs.put("group.id", "edgeCar_1");   // topic 설정
+        configs.put("group.id", "edgeCar");   // topic 설정
         configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");    // key deserializer
         configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");  // value deserializer
 
@@ -42,6 +31,5 @@ public class KafKaTest {
                 }
             }
         }
-
     }
 }
