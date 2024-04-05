@@ -27,38 +27,6 @@ public class wsController {
     }
     private List<WebSocketClient> webSocketClients = new ArrayList<>();
 
-
-    @GetMapping("/kafka/start")
-    public String startConsumer(){
-
-        String topic = (webSocketHandler.getTopic()).equals("edgeCar11") ? "edgeCar22" : "edgeCar11";
-            Properties configs = new Properties();
-            configs.put("bootstrap.servers", webSocketHandler.getIP());
-            configs.put("session.timeout.ms", "10000");
-            configs.put("group.id",topic);
-            configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-            configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs);
-            consumer.subscribe(Arrays.asList(topic));
-
-            while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(500);
-                for (ConsumerRecord<String, String> record : records) {
-                    String input = record.topic();
-                    if (topic.equals(input)) {
-                        System.out.println("input" + input);
-                        TextMessage textMessage = new TextMessage(record.value());
-                        webSocketHandler.sendMsg(textMessage);
-                    } else {
-                        throw new IllegalStateException("get message on topic " + record.topic());
-                    }
-                }
-            }
-
-        //return "시작";
-    };
-
     @GetMapping("/ws/status")
     public String status(){
         String str =  "Now Connect : " + webSocketClients.size() + System.lineSeparator();
@@ -85,16 +53,4 @@ public class wsController {
         webSocketHandler.setWebSocketClient(webSocketClient);
         return "연결 완료";
     }
-
-    @GetMapping("/ws/send/server")
-    public String sendMsgToSvr(){
-        CompletableFuture.runAsync(() -> {
-            for( WebSocketClient client : webSocketClients){
-                client.send("HI! FROM WS111");
-            }
-        });
-        return "성공";
-    }
-
-
 }

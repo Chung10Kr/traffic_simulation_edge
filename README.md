@@ -22,12 +22,12 @@ bin/kafka-server-start.sh config/server.properties
 
 bin/kafka-topics.sh --create --topic test --bootstrap-server localhost:9092
 
-bin/kafka-topics.sh --create --topic edgeCar11 --bootstrap-server localhost:9092
-bin/kafka-topics.sh --create --topic edgeCar22 --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic edgeCarTopic1 --bootstrap-server localhost:9092
 
 # 토픽 확인
 bin/kafka-topics.sh --describe --topic test --bootstrap-server localhost:9092
-bin/kafka-topics.sh --describe --topic edgeCar --bootstrap-server localhost:9092
+bin/kafka-topics.sh --describe --topic edgeCarTopic --bootstrap-server localhost:9092
+bin/kafka-topics.sh --describe --topic edgeCarTopic1 --bootstrap-server localhost:9092
 
 # 프로듀서 메세지 발행
 bin/kafka-console-producer.sh --topic edgeCar --bootstrap-server localhost:9092
@@ -49,8 +49,8 @@ bin/kafka-topics.sh --bootstrap-server localhost:9092 --list | while read line; 
 # 도커
 CPU 코어 : 4
 메모리 : 1G
-docker run -i -t -p 1000:1000 -m 1g  --net="host" --cpus=0.5 --name first-ubuntu ubuntu /bin/bash
-docker run -i -t -p 2000:2000 -m 1g  --net="host" --cpus=0.5 --name second-ubuntu ubuntu /bin/bash
+docker run -i -t -p 1000:1000 -m 1g  --cpus=0.5 --name first-ubuntu ubuntu /bin/bash
+docker run -i -t -p 2000:2000 -m 1g  --cpus=0.5 --name second-ubuntu ubuntu /bin/bash
 
 docker start first-ubuntu
 docker start second-ubuntu
@@ -62,7 +62,10 @@ docker exec -it second-ubuntu /bin/bash
 apt-get update -y &&\
 apt-get install vim -y &&\
 apt-get install sudo -y &&\
-sudo apt-get install openjdk-17-jdk -y
+sudo apt-get install openjdk-17-jdk -y &&\
+apt-get update &&\
+apt-get install net-tools
+
 
 # jar 옮기기
 docker cp /Users/crlee/dev/project/websocket2/websocket/build/libs/websocket-0.0.1-SNAPSHOT.jar first-ubuntu:/root

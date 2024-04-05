@@ -1,8 +1,12 @@
 package com.example.demo.ws.server;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.java_websocket.client.WebSocketClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -11,6 +15,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -43,10 +48,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         this.webSocketClients.add( client );
     }
 
-    @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String id = session.getId();  //메시지를 보낸 아이디
-
+    public void sendToEdge(TextMessage message){
         if( this.webSocketClients.size() != 0){
             CompletableFuture.runAsync(() -> {
                 for(WebSocketClient webSocketClient : webSocketClients){
@@ -54,15 +56,28 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 }
             });
         }
-        System.out.println(message.getPayload());
-
-        System.out.println(message.getPayload());
+    }
+    public void sendToConnectedCar(String id, TextMessage message){
         CLIENTS.entrySet().forEach( arg->{
             if(!arg.getKey().equals(id)){
                 sendMessageToClient(arg.getValue(),message);
             }
         });
+    }
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        //usingWebSocket(session,message);
+        usingKafka(session,message);
+    }
+    public void usingWebSocket(WebSocketSession session, TextMessage message){
+        String id = session.getId();  //메시지를 보낸 아이디
+        sendToEdge(message);
+        sendToConnectedCar(id,message);
+    }
 
+    public void usingKafka(WebSocketSession session, TextMessage message){
+        String id = session.getId();  //메시지를 보낸 아이디
+        producer(id,message.getPayload());
     }
 
     public void sendMessageToClient(WebSocketSession session,TextMessage message){
@@ -76,15 +91,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     public String getIP(){
+        //return "192.168.45.164:9092";
         //return "host.docker.internal:9092";
         return "localhost:9092";
     }
     public String getTopic(){
-        boolean isOne = true;
-        return isOne ? "edgeCar11" : "edgeCar22";
+        return "edgeCarTopic1";
     }
-    boolean start = true;
-    public void producer(String msg){
+
+    public void producer(String id, String msg){
         Properties configs = new Properties();
         configs.put("bootstrap.servers", getIP()); // kafka host 및 server 설정
         configs.put("acks", "all");                         // 자신이 보낸 메시지에 대해 카프카로부터 확인을 기다리지 않습니다.
@@ -96,10 +111,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(configs);
 
         // message 전달
-        producer.send(new ProducerRecord<String, String>(getTopic(), msg));
+        producer.send(new ProducerRecord<String, String>(getTopic(), id+"Chung10"+msg));
 
         // 종료
         producer.flush();
         producer.close();
     }
+
 }

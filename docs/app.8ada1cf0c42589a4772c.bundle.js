@@ -2,9 +2,9 @@
 let i =0;
 function wsServer(){
     let svrList = [
-        //'localhost:8080',
-        'localhost:1000',
-        'localhost:2000'
+        'localhost:8000',
+        //'localhost:1000',
+        //'localhost:2000'
     ];
     let size = svrList.length;
     svr = svrList[i]
@@ -70,8 +70,9 @@ function Http_createCar(id){
             }
             stop(id);
             var now = new Date();
-            var currentTimeInSeconds = now.getTime() / 1000;
-            var timeDifference = currentTimeInSeconds - receivedData.time;
+            var currentTimeInSeconds = getCurrentTimeWithMilliseconds();
+            var timeDifference = currentTimeInSeconds - receivedData.OCCR_TIME;
+            
             // 시간 차이를 소수점 넷째자리까지 반올림합니다.
             var roundedTimeDifference = timeDifference.toFixed(7);
 
@@ -157,15 +158,31 @@ function Ws_activeAccident(id){
         target: id,
         time: currentTimeInSeconds
     };
-    // JSON 형태의 데이터를 문자열로 변환하여 보냅니다.
+
     (sockets[id]['ws']).send(JSON.stringify(data));
 };
 
+function getCurrentTimeWithMilliseconds() {
+    var now = new Date();
+    var hours = String(now.getHours()).padStart(2, '0');
+    var minutes = String(now.getMinutes()).padStart(2, '0');
+    var seconds = String(now.getSeconds()).padStart(2, '0');
+    var milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+  
+    return hours + minutes + seconds + '.' + milliseconds;
+}
+
+  
 
 
-
-
-
+function getFormattedDate() {
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더합니다.
+    var day = String(today.getDate()).padStart(2, '0');
+  
+    return year + month + day;
+}
 
 
 
