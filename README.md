@@ -4,10 +4,12 @@
 gradle build
 
 # WebSocket Connect
-localhost:1000/ws/server?svr=localhost:2000
+localhost:1111/ws/server?svr=localhost:2000
+localhost:1111/ws/server?svr=localhost:3000
+localhost:1111/ws/server?svr=localhost:4000
 
 # get status
-http://localhost:1000/ws/status
+http://localhost:1111/ws/status
 
 # 참고
 https://webfirewood.tistory.com/153#google_vignette
@@ -19,10 +21,12 @@ bin/zookeeper-server-start.sh config/zookeeper.properties
 bin/kafka-server-start.sh config/server.properties
 
 # 토픽 생성
-
 bin/kafka-topics.sh --create --topic test --bootstrap-server localhost:9092
 
 bin/kafka-topics.sh --create --topic edgeCarTopic1 --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic edgeCarTopic2 --bootstrap-server localhost:9092 --partitions 2
+bin/kafka-topics.sh --create --topic edgeCarTopic3 --bootstrap-server localhost:9092 --partitions 3
+bin/kafka-topics.sh --create --topic edgeCarTopic4 --bootstrap-server localhost:9092 --partitions 4
 
 # 토픽 확인
 bin/kafka-topics.sh --describe --topic test --bootstrap-server localhost:9092

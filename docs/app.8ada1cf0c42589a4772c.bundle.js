@@ -2,9 +2,20 @@
 let i =0;
 function wsServer(){
     let svrList = [
-        'localhost:8000',
-        //'localhost:1000',
-        //'localhost:2000'
+        //'43.203.124.142:8001',
+        //'43.203.124.142:8002',
+        //'43.203.124.142:8003',
+        //'43.203.124.142:8004',
+
+        '13.124.210.177:8001',
+        '13.124.210.177:8002',
+        '13.124.210.177:8003',
+        '13.124.210.177:8004',
+
+        '3.36.87.59:8001',
+        '3.36.87.59:8002',
+        '3.36.87.59:8003',
+        '3.36.87.59:8004',
     ];
     let size = svrList.length;
     svr = svrList[i]
@@ -68,7 +79,7 @@ function Http_createCar(id){
             if(receivedData.target ==null){
                 return false;
             }
-            stop(id);
+            //stop(id);
             var now = new Date();
             var currentTimeInSeconds = getCurrentTimeWithMilliseconds();
             var timeDifference = currentTimeInSeconds - receivedData.OCCR_TIME;
@@ -82,6 +93,7 @@ function Http_createCar(id){
             Accident Car = ${receivedData.target} 
             Now - Accident Time diff = ${roundedTimeDifference}
             Avg Diff = ${(avgTime.reduce((x,y)=>x+y) / avgTime.length).toFixed(7)}
+            sum Avg = ${avgTime.reduce(x,y=>x+y)}
             `); 
             
             clearInterval(intervalID);
@@ -138,8 +150,9 @@ Accident Car = ${frame.target}
 Now - Accident Time diff = ${roundedTimeDifference}
 Max Diff = ${maxDiff}
 Avg Diff = ${(avgTime.reduce((x,y)=>x+y) / avgTime.length).toFixed(7)}
+sum Avg = ${avgTime.reduce((x,y)=>x+y)}
 `); 
-        stop(id);
+        //stop(id);
     };
 
     

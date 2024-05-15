@@ -24,7 +24,7 @@ public class KafkaConsumerService {
         this.webSocketHandler = webSocketHandler;
     }
 
-    // ApplicationReadyEvent를 사용하여 모든 스프링 빈 초기화 후에 실행
+     //ApplicationReadyEvent를 사용하여 모든 스프링 빈 초기화 후에 실행
     @EventListener(ApplicationReadyEvent.class)
     public void startConsumer() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -36,7 +36,7 @@ public class KafkaConsumerService {
         Properties configs = new Properties();
         configs.put("bootstrap.servers", webSocketHandler.getIP());
         configs.put("session.timeout.ms", "10000");
-        configs.put("group.id",webSocketHandler.getTopic());
+        configs.put("group.id",webSocketHandler.getTopic() + "1" );
         configs.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         configs.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
